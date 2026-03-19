@@ -73,16 +73,18 @@ export default function Home() {
 
           {/* CTA Buttons */}
           <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-            <button className="nav-btn" style={{
+            <a href="/login" className="nav-btn" style={{
               padding: "8px 20px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)",
-              background: "transparent", color: "rgba(255,255,255,0.7)", cursor: "pointer", fontSize: 14, fontWeight: 500
-            }}>Log in</button>
-            <button style={{
+              background: "transparent", color: "rgba(255,255,255,0.7)", cursor: "pointer", fontSize: 14, fontWeight: 500,
+              textDecoration: "none", display: "inline-block"
+            }}>Log in</a>
+            <a href="/signup" style={{
               padding: "8px 20px", borderRadius: 8, border: "none",
               background: "linear-gradient(135deg, #8b5cf6, #22d38a)",
               color: "#fff", cursor: "pointer", fontSize: 14, fontWeight: 600,
-              boxShadow: "0 0 20px rgba(139,92,246,0.3)"
-            }}>Get Started</button>
+              boxShadow: "0 0 20px rgba(139,92,246,0.3)",
+              textDecoration: "none", display: "inline-block"
+            }}>Get Started</a>
           </div>
         </nav>
 
