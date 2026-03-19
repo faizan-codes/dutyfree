@@ -15,7 +15,7 @@ export default function SignUp() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background: #060608; }
         .input-field {
@@ -27,17 +27,16 @@ export default function SignUp() {
         }
         .input-field:focus { border-color: rgba(139,92,246,0.6); background: rgba(139,92,246,0.05); }
         .input-field::placeholder { color: rgba(255,255,255,0.25); }
-        .role-card:hover { border-color: rgba(255,255,255,0.2) !important; transform: translateY(-2px); }
         .role-card { transition: all 0.2s ease; }
-        .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(139,92,246,0.5) !important; }
+        .role-card:hover { border-color: rgba(255,255,255,0.2) !important; transform: translateY(-2px); }
         .submit-btn { transition: all 0.2s ease; }
+        .submit-btn:hover { transform: translateY(-2px); }
         @keyframes fadeIn { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
         .fade-in { animation: fadeIn 0.4s ease forwards; }
       `}</style>
 
       <main style={{ fontFamily: "'Inter', sans-serif", background: "#060608", color: "#fff", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "24px" }}>
 
-        {/* Background orbs */}
         <div style={{ position: "fixed", inset: 0, pointerEvents: "none", overflow: "hidden" }}>
           <div style={{ position: "absolute", top: "-10%", left: "30%", width: 500, height: 500, borderRadius: "50%", background: "radial-gradient(circle, rgba(139,92,246,0.1) 0%, transparent 70%)" }} />
           <div style={{ position: "absolute", bottom: "0%", right: "10%", width: 400, height: 400, borderRadius: "50%", background: "radial-gradient(circle, rgba(34,211,138,0.07) 0%, transparent 70%)" }} />
@@ -45,7 +44,6 @@ export default function SignUp() {
 
         <div style={{ position: "relative", zIndex: 1, width: "100%", maxWidth: 480 }}>
 
-          {/* Logo */}
           <div style={{ textAlign: "center", marginBottom: 40 }}>
             <a href="/" style={{ display: "inline-flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
               <div style={{ width: 36, height: 36, borderRadius: 10, background: "linear-gradient(135deg, #8b5cf6, #22d38a)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 18, boxShadow: "0 0 20px rgba(139,92,246,0.4)" }}>D</div>
@@ -53,10 +51,8 @@ export default function SignUp() {
             </a>
           </div>
 
-          {/* Card */}
-          <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 20, padding: "40px 40px", backdropFilter: "blur(20px)" }}>
+          <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 20, padding: "40px", backdropFilter: "blur(20px)" }}>
 
-            {/* Step 1 — Role Selection */}
             {step === 1 && (
               <div className="fade-in">
                 <h1 style={{ fontSize: 26, fontWeight: 800, letterSpacing: "-1px", marginBottom: 8 }}>Join DutyFree</h1>
@@ -72,7 +68,7 @@ export default function SignUp() {
                   }}>
                     <div style={{ fontSize: 32 }}>🏢</div>
                     <div>
-                      <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 3 }}>I'm a Client</div>
+                      <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 3 }}>I am a Client</div>
                       <div style={{ fontSize: 13, color: "rgba(255,255,255,0.38)" }}>I want to hire freelancers for my projects</div>
                     </div>
                     <div style={{ marginLeft: "auto", width: 20, height: 20, borderRadius: "50%", border: `2px solid ${role === "client" ? "#8b5cf6" : "rgba(255,255,255,0.2)"}`, background: role === "client" ? "#8b5cf6" : "transparent", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10 }}>
@@ -89,7 +85,7 @@ export default function SignUp() {
                   }}>
                     <div style={{ fontSize: 32 }}>💼</div>
                     <div>
-                      <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 3 }}>I'm a Freelancer</div>
+                      <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 3 }}>I am a Freelancer</div>
                       <div style={{ fontSize: 13, color: "rgba(255,255,255,0.38)" }}>I want to find work and grow my career</div>
                     </div>
                     <div style={{ marginLeft: "auto", width: 20, height: 20, borderRadius: "50%", border: `2px solid ${role === "freelancer" ? "#22d38a" : "rgba(255,255,255,0.2)"}`, background: role === "freelancer" ? "#22d38a" : "transparent", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10 }}>
@@ -110,10 +106,8 @@ export default function SignUp() {
               </div>
             )}
 
-            {/* Step 2 — Details Form */}
             {step === 2 && (
               <div className="fade-in">
-                {/* Role badge */}
                 <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 28 }}>
                   <button onClick={() => setStep(1)} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.4)", cursor: "pointer", fontSize: 18, padding: 0 }}>←</button>
                   <div style={{ padding: "4px 12px", borderRadius: 100, fontSize: 12, fontWeight: 600, background: role === "client" ? "rgba(139,92,246,0.15)" : "rgba(34,211,138,0.12)", color: role === "client" ? "#a78bfa" : "#22d38a", border: `1px solid ${role === "client" ? "rgba(139,92,246,0.3)" : "rgba(34,211,138,0.3)"}` }}>
@@ -124,7 +118,6 @@ export default function SignUp() {
                 <h1 style={{ fontSize: 26, fontWeight: 800, letterSpacing: "-1px", marginBottom: 8 }}>Create your account</h1>
                 <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 14, marginBottom: 28 }}>Free forever. No credit card needed.</p>
 
-                {/* Google Button */}
                 <button style={{
                   width: "100%", padding: "13px", borderRadius: 10, fontSize: 14, fontWeight: 600,
                   border: "1px solid rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.04)",
@@ -134,14 +127,12 @@ export default function SignUp() {
                   Continue with Google
                 </button>
 
-                {/* Divider */}
                 <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 24 }}>
                   <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.07)" }} />
                   <span style={{ fontSize: 12, color: "rgba(255,255,255,0.25)", fontWeight: 500 }}>or with email</span>
                   <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.07)" }} />
                 </div>
 
-                {/* Form Fields */}
                 <div style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 20 }}>
                   <div>
                     <label style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,0.5)", display: "block", marginBottom: 6 }}>Full Name</label>
@@ -162,11 +153,13 @@ export default function SignUp() {
                   </div>
                 </div>
 
-                {/* Terms */}
                 <label style={{ display: "flex", alignItems: "flex-start", gap: 10, marginBottom: 24, cursor: "pointer" }}>
                   <input type="checkbox" checked={agreed} onChange={e => setAgreed(e.target.checked)} style={{ marginTop: 3, accentColor: "#8b5cf6" }} />
                   <span style={{ fontSize: 13, color: "rgba(255,255,255,0.35)", lineHeight: 1.6 }}>
-                    I agree to DutyFree's <a href="#" style={{ color: "#8b5cf6", textDecoration: "none" }}>Terms of Service</a> and <a href="#" style={{ color: "#8b5cf6", textDecoration: "none" }}>Privacy Policy</a>
+                    I agree to DutyFree's{" "}
+                    <a href="#" style={{ color: "#8b5cf6", textDecoration: "none" }}>Terms of Service</a>
+                    {" "}and{" "}
+                    <a href="#" style={{ color: "#8b5cf6", textDecoration: "none" }}>Privacy Policy</a>
                   </span>
                 </label>
 
@@ -181,7 +174,6 @@ export default function SignUp() {
               </div>
             )}
 
-            {/* Login link */}
             <p style={{ textAlign: "center", marginTop: 24, fontSize: 14, color: "rgba(255,255,255,0.3)" }}>
               Already have an account?{" "}
               <a href="/login" style={{ color: "#8b5cf6", textDecoration: "none", fontWeight: 600 }}>Log in</a>
