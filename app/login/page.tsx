@@ -1,128 +1,266 @@
-"use client";
-import { useState } from "react";
+'use client'
 
-export default function Login() {
-  const [form, setForm] = useState({ email: "", password: "" });
-  const [showPass, setShowPass] = useState(false);
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import { createClient } from '@/lib/supabase'
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+type Tab = 'email' | 'phone'
+
+export default function LoginPage() {
+  const router = useRouter()
+  const supabase = createClient()
+
+  const [tab, setTab] = useState<Tab>('email')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [phone, setPhone] = useState('')
+  const [otp, setOtp] = useState('')
+  const [otpSent, setOtpSent] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [message, setMessage] = useState('')
+
+  // ── Google OAuth ──────────────────────────────────────────
+  const handleGoogleLogin = async () => {
+    setLoading(true)
+    setError('')
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    })
+    if (error) setError(error.message)
+    setLoading(false)
+  }
+
+  // ── Email + Password ──────────────────────────────────────
+  const handleEmailLogin = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    setError('')
+    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    if (error) {
+      setError(error.message)
+    } else {
+      router.push('/dashboard')
+    }
+    setLoading(false)
+  }
+
+  // ── Phone OTP — Send ──────────────────────────────────────
+  const handleSendOtp = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    setError('')
+    const formatted = phone.startsWith('+') ? phone : `+91${phone}`
+    const { error } = await supabase.auth.signInWithOtp({ phone: formatted })
+    if (error) {
+      setError(error.message)
+    } else {
+      setOtpSent(true)
+      setMessage(`OTP bheja gaya: ${formatted}`)
+    }
+    setLoading(false)
+  }
+
+  // ── Phone OTP — Verify ────────────────────────────────────
+  const handleVerifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    setError('')
+    const formatted = phone.startsWith('+') ? phone : `+91${phone}`
+    const { error } = await supabase.auth.verifyOtp({
+      phone: formatted,
+      token: otp,
+      type: 'sms',
+    })
+    if (error) {
+      setError(error.message)
+    } else {
+      router.push('/dashboard')
+    }
+    setLoading(false)
+  }
 
   return (
-    <>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: #060608; }
-        .input-field {
-          width: 100%; padding: 14px 16px; border-radius: 10px;
-          border: 1px solid rgba(255,255,255,0.08);
-          background: rgba(255,255,255,0.04);
-          color: #fff; font-size: 15px; font-family: 'Inter', sans-serif;
-          outline: none; transition: border-color 0.2s;
-        }
-        .input-field:focus { border-color: rgba(139,92,246,0.6); background: rgba(139,92,246,0.05); }
-        .input-field::placeholder { color: rgba(255,255,255,0.25); }
-        .submit-btn { transition: all 0.2s ease; }
-        .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(139,92,246,0.5) !important; }
-        .google-btn:hover { background: rgba(255,255,255,0.08) !important; }
-        @keyframes fadeIn { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
-        .fade-in { animation: fadeIn 0.4s ease forwards; }
-      `}</style>
+    <div className="min-h-screen bg-gray-950 flex items-center justify-center px-4">
+      <div className="w-full max-w-md">
 
-      <main style={{ fontFamily: "'Inter', sans-serif", background: "#060608", color: "#fff", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "24px" }}>
-
-        {/* Background orbs */}
-        <div style={{ position: "fixed", inset: 0, pointerEvents: "none", overflow: "hidden" }}>
-          <div style={{ position: "absolute", top: "-10%", right: "20%", width: 500, height: 500, borderRadius: "50%", background: "radial-gradient(circle, rgba(139,92,246,0.1) 0%, transparent 70%)" }} />
-          <div style={{ position: "absolute", bottom: "10%", left: "10%", width: 400, height: 400, borderRadius: "50%", background: "radial-gradient(circle, rgba(34,211,138,0.07) 0%, transparent 70%)" }} />
+        {/* Logo */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-white">DutyFree</h1>
+          <p className="text-gray-400 mt-2">Apne account mein login karo</p>
         </div>
 
-        <div style={{ position: "relative", zIndex: 1, width: "100%", maxWidth: 440 }}>
+        <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8 shadow-xl">
 
-          {/* Logo */}
-          <div style={{ textAlign: "center", marginBottom: 40 }}>
-            <a href="/" style={{ display: "inline-flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
-              <div style={{ width: 36, height: 36, borderRadius: 10, background: "linear-gradient(135deg, #8b5cf6, #22d38a)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: 18, boxShadow: "0 0 20px rgba(139,92,246,0.4)" }}>D</div>
-              <span style={{ fontWeight: 700, fontSize: 20, color: "#fff", letterSpacing: "-0.5px" }}>DutyFree</span>
-            </a>
+          {/* Google Button */}
+          <button
+            onClick={handleGoogleLogin}
+            disabled={loading}
+            className="w-full flex items-center justify-center gap-3 bg-white text-gray-900 font-semibold py-3 px-4 rounded-xl hover:bg-gray-100 transition-all duration-200 mb-6 disabled:opacity-50"
+          >
+            <svg width="20" height="20" viewBox="0 0 48 48">
+              <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+              <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+              <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+              <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+            </svg>
+            Google se login karo
+          </button>
+
+          {/* Divider */}
+          <div className="flex items-center gap-3 mb-6">
+            <div className="flex-1 h-px bg-gray-700" />
+            <span className="text-gray-500 text-sm">ya</span>
+            <div className="flex-1 h-px bg-gray-700" />
           </div>
 
-          {/* Card */}
-          <div className="fade-in" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 20, padding: "40px", backdropFilter: "blur(20px)" }}>
-
-            <h1 style={{ fontSize: 26, fontWeight: 800, letterSpacing: "-1px", marginBottom: 8 }}>Welcome back</h1>
-            <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 14, marginBottom: 32 }}>Log in to your DutyFree account</p>
-
-            {/* Google Button */}
-            <button className="google-btn" style={{
-              width: "100%", padding: "13px", borderRadius: 10, fontSize: 14, fontWeight: 600,
-              border: "1px solid rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.04)",
-              color: "#fff", cursor: "pointer", display: "flex", alignItems: "center",
-              justifyContent: "center", gap: 10, marginBottom: 24, transition: "background 0.2s"
-            }}>
-              <svg width="18" height="18" viewBox="0 0 24 24">
-                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-              </svg>
-              Continue with Google
+          {/* Tab Switch */}
+          <div className="flex bg-gray-800 rounded-xl p-1 mb-6">
+            <button
+              onClick={() => { setTab('email'); setError(''); setMessage('') }}
+              className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
+                tab === 'email'
+                  ? 'bg-indigo-600 text-white'
+                  : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              Email
             </button>
+            <button
+              onClick={() => { setTab('phone'); setError(''); setMessage('') }}
+              className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
+                tab === 'phone'
+                  ? 'bg-indigo-600 text-white'
+                  : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              Phone OTP
+            </button>
+          </div>
 
-            {/* Divider */}
-            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 24 }}>
-              <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.07)" }} />
-              <span style={{ fontSize: 12, color: "rgba(255,255,255,0.25)", fontWeight: 500 }}>or with email</span>
-              <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.07)" }} />
+          {/* Error / Message */}
+          {error && (
+            <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-sm rounded-xl px-4 py-3 mb-4">
+              {error}
             </div>
+          )}
+          {message && (
+            <div className="bg-green-500/10 border border-green-500/30 text-green-400 text-sm rounded-xl px-4 py-3 mb-4">
+              {message}
+            </div>
+          )}
 
-            {/* Form */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 16 }}>
+          {/* Email Form */}
+          {tab === 'email' && (
+            <form onSubmit={handleEmailLogin} className="space-y-4">
               <div>
-                <label style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,0.5)", display: "block", marginBottom: 6 }}>Email Address</label>
-                <input className="input-field" name="email" type="email" placeholder="john@example.com" value={form.email} onChange={handleChange} />
+                <label className="text-gray-400 text-sm mb-1.5 block">Email</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  placeholder="aapka@email.com"
+                  required
+                  className="w-full bg-gray-800 border border-gray-700 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-indigo-500 transition-colors placeholder-gray-600"
+                />
               </div>
               <div>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-                  <label style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,0.5)" }}>Password</label>
-                  <a href="/forgot-password" style={{ fontSize: 13, color: "#8b5cf6", textDecoration: "none", fontWeight: 500 }}>Forgot password?</a>
-                </div>
-                <div style={{ position: "relative" }}>
-                  <input className="input-field" name="password" type={showPass ? "text" : "password"} placeholder="Enter your password" value={form.password} onChange={handleChange} style={{ paddingRight: 48 }} />
-                  <button onClick={() => setShowPass(!showPass)} style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "rgba(255,255,255,0.3)", cursor: "pointer", fontSize: 16 }}>
-                    {showPass ? "🙈" : "👁️"}
+                <label className="text-gray-400 text-sm mb-1.5 block">Password</label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  required
+                  className="w-full bg-gray-800 border border-gray-700 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-indigo-500 transition-colors placeholder-gray-600"
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 rounded-xl transition-all duration-200 disabled:opacity-50 mt-2"
+              >
+                {loading ? 'Login ho raha hai...' : 'Login Karo'}
+              </button>
+            </form>
+          )}
+
+          {/* Phone OTP Form */}
+          {tab === 'phone' && (
+            <div className="space-y-4">
+              {!otpSent ? (
+                <form onSubmit={handleSendOtp} className="space-y-4">
+                  <div>
+                    <label className="text-gray-400 text-sm mb-1.5 block">Phone Number</label>
+                    <div className="flex gap-2">
+                      <div className="bg-gray-800 border border-gray-700 text-gray-400 rounded-xl px-3 py-3 text-sm flex items-center">
+                        +91
+                      </div>
+                      <input
+                        type="tel"
+                        value={phone}
+                        onChange={e => setPhone(e.target.value)}
+                        placeholder="9876543210"
+                        required
+                        maxLength={10}
+                        className="flex-1 bg-gray-800 border border-gray-700 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-indigo-500 transition-colors placeholder-gray-600"
+                      />
+                    </div>
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 rounded-xl transition-all duration-200 disabled:opacity-50"
+                  >
+                    {loading ? 'OTP bhej rahe hain...' : 'OTP Bhejo'}
                   </button>
-                </div>
-              </div>
+                </form>
+              ) : (
+                <form onSubmit={handleVerifyOtp} className="space-y-4">
+                  <div>
+                    <label className="text-gray-400 text-sm mb-1.5 block">OTP Enter Karo</label>
+                    <input
+                      type="text"
+                      value={otp}
+                      onChange={e => setOtp(e.target.value)}
+                      placeholder="6 digit OTP"
+                      required
+                      maxLength={6}
+                      className="w-full bg-gray-800 border border-gray-700 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-indigo-500 transition-colors placeholder-gray-600 text-center text-2xl tracking-widest"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 rounded-xl transition-all duration-200 disabled:opacity-50"
+                  >
+                    {loading ? 'Verify ho raha hai...' : 'Verify Karo'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setOtpSent(false); setOtp(''); setMessage('') }}
+                    className="w-full text-gray-500 text-sm hover:text-gray-300 transition-colors"
+                  >
+                    Phone number badlo
+                  </button>
+                </form>
+              )}
             </div>
+          )}
 
-            {/* Login Button */}
-            <button className="submit-btn" style={{
-              width: "100%", padding: "14px", borderRadius: 12, fontSize: 15, fontWeight: 700,
-              border: "none", cursor: "pointer", marginBottom: 24,
-              background: "linear-gradient(135deg, #8b5cf6, #6d28d9)",
-              color: "#fff", boxShadow: "0 8px 28px rgba(139,92,246,0.35)"
-            }}>
-              Log In →
-            </button>
-
-            {/* Divider */}
-            <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 24 }}>
-              <p style={{ textAlign: "center", fontSize: 14, color: "rgba(255,255,255,0.3)" }}>
-                Don't have an account?{" "}
-                <a href="/signup" style={{ color: "#8b5cf6", textDecoration: "none", fontWeight: 600 }}>Sign up free</a>
-              </p>
-            </div>
-          </div>
-
-          {/* Trust line */}
-          <p style={{ textAlign: "center", marginTop: 24, fontSize: 12, color: "rgba(255,255,255,0.2)" }}>
-            Protected by AES-256 encryption · Your data is safe
+          {/* Signup Link */}
+          <p className="text-center text-gray-500 text-sm mt-6">
+            Account nahi hai?{' '}
+            <Link href="/signup" className="text-indigo-400 hover:text-indigo-300 font-medium">
+              Sign up karo
+            </Link>
           </p>
         </div>
-      </main>
-    </>
-  );
+      </div>
+    </div>
+  )
 }
